@@ -19,7 +19,7 @@ const WorkoutSession: React.FC<WorkoutSessionProps> = ({ routine, onFinish }) =>
   const completedSets = routine.exercises.slice(0, currentIdx).reduce((acc, ex) => acc + ex.sets, 0) + (currentSet - 1);
   const progressPercent = (completedSets / totalSetsInRoutine) * 100;
 
-  const handleSetComplete = () => {
+  const handleNext = () => {
     if (currentSet < currentEx.sets) {
       setIsResting(true);
     } else {
@@ -45,53 +45,58 @@ const WorkoutSession: React.FC<WorkoutSessionProps> = ({ routine, onFinish }) =>
   if (isResting) {
     const isExerciseChange = currentSet === currentEx.sets;
     return (
-      <div className="max-w-md mx-auto py-12 px-4 animate-in fade-in duration-500">
+      <div className="max-w-md mx-auto py-12 px-4">
         <Timer 
           seconds={isExerciseChange ? routine.config.restBetweenExercises : routine.config.restBetweenSets}
-          title={isExerciseChange ? "Próximo Ejercicio" : "Descanso entre Series"}
-          subtitle={isExerciseChange ? routine.exercises[currentIdx + 1]?.name : `Recuperando para Serie ${currentSet + 1}`}
+          title={isExerciseChange ? "Siguiente Ejercicio" : "Descanso entre Series"}
+          subtitle={isExerciseChange ? routine.exercises[currentIdx + 1]?.name : `Serie ${currentSet + 1} en camino`}
           onComplete={handleRestEnd}
         />
-        <div className="mt-10 w-full bg-slate-100 h-2 rounded-full overflow-hidden border border-slate-200">
-           <div className="h-full bg-indigo-600 transition-all duration-700" style={{ width: `${progressPercent}%` }}></div>
+        <div className="mt-8 px-4">
+           <div className="flex justify-between mb-2">
+             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Progreso total</span>
+             <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">{Math.round(progressPercent)}%</span>
+           </div>
+           <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden border border-slate-200">
+             <div className="h-full bg-indigo-600 transition-all duration-700" style={{ width: `${progressPercent}%` }}></div>
+           </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 animate-in slide-in-from-right-10">
-      {/* Barra de progreso superior fija */}
-      <div className="fixed top-0 left-0 w-full h-1.5 bg-slate-200 z-[100]">
-        <div className="h-full bg-indigo-600 transition-all duration-500 ease-out" style={{ width: `${progressPercent}%` }}></div>
+    <div className="max-w-4xl mx-auto px-4 py-8 animate-in slide-in-from-right-10 duration-500">
+      <div className="fixed top-0 left-0 w-full h-1.5 bg-slate-200 z-50">
+        <div className="h-full bg-indigo-600 transition-all duration-500" style={{ width: `${progressPercent}%` }}></div>
       </div>
 
       <div className="bg-white rounded-[3.5rem] shadow-2xl overflow-hidden border border-slate-100">
         <div className="relative h-72 sm:h-[450px]">
           <img src={currentEx.imageUrl} className="w-full h-full object-cover" alt={currentEx.name} />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/20 to-transparent flex flex-col justify-end p-8 sm:p-14">
-            <span className="inline-block self-start px-3 py-1 bg-indigo-600 text-white rounded-lg text-[10px] font-black uppercase mb-4 tracking-widest">{currentEx.category}</span>
-            <h2 className="text-4xl sm:text-6xl font-black text-white leading-tight drop-shadow-lg">{currentEx.name}</h2>
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/30 to-transparent flex flex-col justify-end p-8 sm:p-12">
+            <span className="inline-block self-start px-3 py-1 bg-indigo-600 text-white rounded-lg text-[10px] font-black uppercase mb-3 tracking-widest">{currentEx.category}</span>
+            <h2 className="text-4xl sm:text-6xl font-black text-white leading-tight">{currentEx.name}</h2>
           </div>
         </div>
 
-        <div className="p-8 sm:p-14">
-          <div className="grid grid-cols-2 gap-6 mb-12 text-center">
+        <div className="p-8 sm:p-12">
+          <div className="grid grid-cols-2 gap-6 mb-10 text-center">
             <div className="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100">
-              <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Serie</span>
+              <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Serie</span>
               <div className="flex items-baseline justify-center gap-1">
                 <span className="text-5xl font-black text-indigo-600 tracking-tighter">{currentSet}</span>
                 <span className="text-xl font-bold text-slate-300">/ {currentEx.sets}</span>
               </div>
             </div>
             <div className="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100">
-              <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Objetivo</span>
+              <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Repeticiones</span>
               <span className="text-5xl font-black text-slate-800 tracking-tighter">{currentEx.reps}</span>
             </div>
           </div>
 
-          <div className="mb-12">
-             <button onClick={() => setShowTechnical(!showTechnical)} className="w-full py-4 px-6 bg-slate-50 rounded-2xl flex items-center justify-between hover:bg-slate-100 transition-colors border border-slate-100">
+          <div className="mb-10">
+             <button onClick={() => setShowTechnical(!showTechnical)} className="w-full py-4 px-6 bg-slate-50 rounded-2xl flex items-center justify-between group hover:bg-slate-100 transition-colors border border-slate-100">
                 <span className="text-xs font-black text-slate-500 uppercase tracking-widest">Guía de Técnica</span>
                 <svg className={`w-5 h-5 text-indigo-500 transform transition-transform ${showTechnical ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" /></svg>
              </button>
@@ -103,7 +108,12 @@ const WorkoutSession: React.FC<WorkoutSessionProps> = ({ routine, onFinish }) =>
              )}
           </div>
 
-          <button onClick={handleSetComplete} className="w-full py-7 bg-indigo-600 text-white rounded-[2.5rem] font-black text-2xl shadow-2xl shadow-indigo-100 transition-all transform active:scale-[0.98] hover:bg-indigo-700">Completar Serie</button>
+          <button
+            onClick={handleNext}
+            className="w-full py-7 bg-indigo-600 text-white rounded-[2.5rem] font-black text-2xl shadow-xl shadow-indigo-100 transition-all transform active:scale-95"
+          >
+            {currentSet === currentEx.sets && currentIdx === routine.exercises.length - 1 ? 'Finalizar Entrenamiento' : 'Completar Serie'}
+          </button>
         </div>
       </div>
     </div>

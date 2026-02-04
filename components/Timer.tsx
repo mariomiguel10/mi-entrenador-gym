@@ -37,25 +37,27 @@ const Timer: React.FC<TimerProps> = ({ seconds, onComplete, title, subtitle }) =
   const offset = circumference - (progress / 100) * circumference;
 
   return (
-    <div className="flex flex-col items-center justify-center p-10 bg-white rounded-[3rem] shadow-2xl border border-indigo-50 max-w-md mx-auto w-full">
-      <div className="text-center mb-8">
+    <div className="flex flex-col items-center justify-center p-8 bg-white rounded-[3rem] shadow-2xl border border-indigo-50 w-full animate-in fade-in zoom-in-95">
+      <div className="text-center mb-6">
         <h3 className="text-2xl font-black text-slate-900 mb-1">{title}</h3>
-        {subtitle && <p className="text-indigo-600 font-bold text-xs uppercase tracking-[0.2em]">{subtitle}</p>}
+        {subtitle && <p className="text-indigo-600 font-bold text-xs uppercase tracking-widest">{subtitle}</p>}
       </div>
 
-      <div className="relative w-64 h-64 flex items-center justify-center mb-10">
+      <div className="relative w-56 h-56 flex items-center justify-center mb-8">
         <svg className="absolute w-full h-full transform -rotate-90">
-          <circle cx="128" cy="128" r="104" stroke="currentColor" strokeWidth="12" fill="transparent" className="text-slate-50" />
-          <circle cx="128" cy="128" r="104" stroke="currentColor" strokeWidth="12" fill="transparent" strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round" className="text-indigo-600 transition-all duration-1000 ease-linear" />
+          <circle cx="112" cy="112" r="104" stroke="currentColor" strokeWidth="12" fill="transparent" className="text-slate-50" />
+          <circle cx="112" cy="112" r="104" stroke="currentColor" strokeWidth="12" fill="transparent" strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round" className="text-indigo-600 transition-all duration-1000 ease-linear" />
         </svg>
-        <span className="text-7xl font-black text-slate-800 font-mono tracking-tighter">{formatTime(timeLeft)}</span>
+        <span className="text-6xl font-black text-slate-800 font-mono tracking-tighter">{formatTime(timeLeft)}</span>
       </div>
 
       <div className="flex gap-4 w-full">
-        <button onClick={() => setIsPaused(!isPaused)} className={`flex-1 py-5 rounded-[1.5rem] font-black text-sm uppercase tracking-widest transition-all ${isPaused ? 'bg-indigo-100 text-indigo-700 border-2 border-indigo-200' : 'bg-slate-50 text-slate-500 border-2 border-slate-100'}`}>
+        <button onClick={() => setIsPaused(!isPaused)} className="flex-1 py-4 bg-slate-100 text-slate-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-200 transition-all">
           {isPaused ? 'Continuar' : 'Pausar'}
         </button>
-        <button onClick={onComplete} className="flex-[2] py-5 bg-indigo-600 text-white rounded-[1.5rem] font-black text-sm uppercase tracking-widest shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all">Saltar</button>
+        <button onClick={onComplete} className="flex-[2] py-4 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all">
+          Saltar
+        </button>
       </div>
     </div>
   );

@@ -6,17 +6,16 @@ export async function generateRoutine(config: WorkoutConfig): Promise<Routine> {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
   const prompt = `
-    Eres un entrenador personal de élite. Crea una rutina de entrenamiento personalizada.
+    Eres un entrenador personal de élite. Diseña una rutina de entrenamiento de alta eficiencia.
     OBJETIVO: ${config.objective}
     DIFICULTAD: ${config.difficulty}
     TIEMPO: ${config.duration} minutos
+    DESCANSOS: ${config.restBetweenSets}s entre series, ${config.restBetweenExercises}s entre ejercicios.
     
-    INSTRUCCIONES:
-    - Diseña entre 4 y 7 ejercicios efectivos.
-    - Asegúrate de que las repeticiones y series coincidan con el objetivo (ej: hipertrofia vs resistencia).
-    - Los descansos deben ser: ${config.restBetweenSets}s entre series y ${config.restBetweenExercises}s entre ejercicios.
-    
-    Devuelve un JSON estructurado con 'focus' (resumen de la sesión) y 'exercises'.
+    REGLAS:
+    - Selecciona entre 4 y 7 ejercicios clave.
+    - Asegúrate de que el volumen de trabajo (series/reps) sea coherente con el objetivo y la dificultad.
+    - Devuelve un JSON con 'focus' (un resumen motivador) y 'exercises'.
   `;
 
   try {
@@ -54,16 +53,16 @@ export async function generateRoutine(config: WorkoutConfig): Promise<Routine> {
     
     return {
       focus: data.focus,
+      config: config,
       exercises: data.exercises.map((ex: any, idx: number) => ({
         ...ex,
         id: `ex-${idx}`,
         category: ex.category || 'Fuerza',
         imageUrl: `https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=800&h=600&auto=format&fit=crop&exercise=${encodeURIComponent(ex.name)}`
-      })),
-      config: config
+      }))
     };
   } catch (error) {
-    console.error("Gemini AI Error:", error);
+    console.error("Gemini Error:", error);
     throw error;
   }
 }
