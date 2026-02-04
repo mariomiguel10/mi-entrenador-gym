@@ -1,27 +1,22 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
 
-// Inicialización segura. Si process.env.API_KEY no existe, el shim en index.html evita el crash.
-const getAIClient = () => {
-  const apiKey = process.env.API_KEY;
-  if (!apiKey) {
-    console.warn("Gemini API Key no encontrada. La generación de rutinas podría fallar.");
-  }
-  return new GoogleGenAI({ apiKey: apiKey || 'MISSING_KEY' });
-};
-
 export async function generateRoutine(config) {
-  const ai = getAIClient();
+  // Inicialización directa según directrices
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
   const prompt = `
-    Genera una rutina de fitness altamente personalizada en JSON.
+    Como entrenador personal experto, genera una rutina de fitness en formato JSON.
     Objetivo: ${config.objective}
-    Nivel: ${config.difficulty}
-    Duración: ${config.duration} min
-    Descanso series sugerido: ${config.restBetweenSets}s
-    Descanso ejercicios sugerido: ${config.restBetweenExercises}s
+    Nivel de experiencia: ${config.difficulty}
+    Tiempo disponible: ${config.duration} minutos
+    Descanso entre series solicitado: ${config.restBetweenSets} segundos
+    Descanso entre ejercicios solicitado: ${config.restBetweenExercises} segundos
 
-    Para cada ejercicio, asígnale una categoría obligatoria entre: 'Cardio', 'Fuerza', 'Flexibilidad'.
+    REGLAS:
+    - El número de ejercicios debe ser proporcional al tiempo (mínimo 4, máximo 8).
+    - Incluye ejercicios variados y seguros para el nivel indicado.
+    - Las repeticiones deben ser acordes al objetivo (ej. 8-12 para ganar músculo, +15 para resistencia).
   `;
 
   try {
@@ -44,8 +39,9 @@ export async function generateRoutine(config) {
                   reps: { type: Type.STRING },
                   description: { type: Type.STRING },
                   technicalDetails: { type: Type.STRING },
-                  category: { type: Type.STRING, description: "Uno de: Cardio, Fuerza, Flexibilidad" }
-                }
+                  category: { type: Type.STRING }
+                },
+                required: ["name", "sets", "reps", "description", "technicalDetails"]
               }
             }
           },
@@ -68,7 +64,7 @@ export async function generateRoutine(config) {
       }))
     };
   } catch (error) {
-    console.error("Gemini Error:", error);
+    console.error("Gemini SDK Error:", error);
     throw error;
   }
 }
