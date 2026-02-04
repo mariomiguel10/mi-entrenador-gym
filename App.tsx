@@ -23,7 +23,7 @@ const App: React.FC = () => {
       setView('overview');
     } catch (err) {
       console.error(err);
-      alert("Error al conectar con el Coach AI. Reintenta.");
+      alert("Error al conectar con la IA. Asegúrate de tener conexión y reintenta.");
       setView('config');
     }
   };
@@ -32,15 +32,15 @@ const App: React.FC = () => {
     <div className="max-w-xl mx-auto px-4 py-10 animate-in fade-in slide-in-from-bottom-6 duration-700">
       <div className="glass-card p-8 sm:p-12 rounded-[3rem] shadow-2xl">
         <header className="text-center mb-10">
-          <div className="inline-block px-4 py-1 bg-indigo-50 text-indigo-700 rounded-full font-black text-[10px] uppercase tracking-widest mb-4">SmartFit AI Engine</div>
-          <h1 className="text-4xl font-black text-slate-900 leading-tight">Configura tu Sesión</h1>
-          <p className="text-slate-400 font-medium mt-2">Optimizado por Inteligencia Artificial</p>
+          <div className="inline-block px-4 py-1.5 bg-indigo-50 text-indigo-700 rounded-full font-black text-[10px] uppercase tracking-widest mb-4">Coach AI Premium</div>
+          <h1 className="text-4xl font-black text-slate-900 tracking-tight leading-tight">Diseña tu Sesión</h1>
+          <p className="text-slate-400 font-medium mt-2">Configuración personalizada de alto rendimiento</p>
         </header>
 
         <div className="space-y-10">
           {/* Objetivo */}
           <section>
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 block text-center">Objetivo</label>
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 block text-center">Tu Objetivo</label>
             <div className="grid grid-cols-2 gap-3">
               {(['Perder Peso', 'Ganar Músculo', 'Tonificar', 'Resistencia'] as Objective[]).map(obj => (
                 <button
@@ -55,10 +55,10 @@ const App: React.FC = () => {
             </div>
           </section>
 
-          {/* Nivel y Tiempo */}
+          {/* Dificultad y Tiempo */}
           <div className="grid grid-cols-2 gap-6">
             <section>
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block">Dificultad</label>
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block">Nivel</label>
               <select 
                 value={config.difficulty}
                 onChange={(e) => setConfig({...config, difficulty: e.target.value as Difficulty})}
@@ -70,7 +70,7 @@ const App: React.FC = () => {
               </select>
             </section>
             <section>
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block">Tiempo</label>
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block">Duración</label>
               <select 
                 value={config.duration}
                 onChange={(e) => setConfig({...config, duration: parseInt(e.target.value) as Duration})}
@@ -86,8 +86,8 @@ const App: React.FC = () => {
 
           {/* Descansos */}
           <section className="bg-slate-50 p-6 rounded-[2.5rem] border border-slate-100">
-             <div className="flex justify-between items-center mb-4">
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Descanso entre series</span>
+             <div className="flex justify-between items-center mb-4 px-1">
+                <span className="text-[10px] font-black text-slate-400 uppercase">Descanso entre series</span>
                 <span className="text-sm font-black text-indigo-600 bg-white px-3 py-1 rounded-lg border border-indigo-100">{config.restBetweenSets}s</span>
              </div>
              <input type="range" min="15" max="120" step="5" value={config.restBetweenSets} onChange={(e) => setConfig({...config, restBetweenSets: parseInt(e.target.value)})} className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer" />
@@ -97,7 +97,7 @@ const App: React.FC = () => {
             onClick={handleStartGeneration} 
             className="w-full py-6 bg-indigo-600 hover:bg-indigo-700 text-white rounded-[2.5rem] font-black text-xl shadow-2xl shadow-indigo-100 transition-all transform active:scale-95 flex items-center justify-center gap-3"
           >
-            Generar Mi Rutina AI
+            Generar Rutina AI
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
@@ -114,8 +114,8 @@ const App: React.FC = () => {
           <span className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.4em] mb-2 block">Sesión Preparada</span>
           <h2 className="text-4xl font-black mb-6">Tu Plan de Hoy</h2>
           <div className="flex justify-center gap-2">
-             <span className="px-4 py-1.5 bg-white/10 rounded-full text-[10px] font-bold uppercase tracking-widest">{config.objective}</span>
-             <span className="px-4 py-1.5 bg-white/10 rounded-full text-[10px] font-bold uppercase tracking-widest">{config.difficulty}</span>
+             <span className="px-4 py-1.5 bg-white/10 rounded-full text-[10px] font-bold uppercase">{config.objective}</span>
+             <span className="px-4 py-1.5 bg-white/10 rounded-full text-[10px] font-bold uppercase">{config.difficulty}</span>
           </div>
         </div>
         <div className="p-8 sm:p-12 space-y-4">
@@ -143,8 +143,8 @@ const App: React.FC = () => {
             <div className="absolute inset-0 rounded-full border-8 border-indigo-50"></div>
             <div className="absolute inset-0 rounded-full border-8 border-indigo-600 border-t-transparent animate-spin"></div>
           </div>
-          <h2 className="text-3xl font-black text-slate-900 mb-2 tracking-tighter">Consultando Coach AI...</h2>
-          <p className="text-slate-400 font-medium">Personalizando tu entrenamiento de {config.objective.toLowerCase()}</p>
+          <h2 className="text-3xl font-black text-slate-900 mb-2 tracking-tighter">Preparando tu Sesión...</h2>
+          <p className="text-slate-400 font-medium max-w-xs">Nuestra IA está seleccionando los mejores ejercicios de {config.objective.toLowerCase()} para tu nivel.</p>
         </div>
       )}
       {view === 'overview' && renderOverview()}
@@ -155,8 +155,8 @@ const App: React.FC = () => {
             <div className="w-24 h-24 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-10 shadow-inner">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={5} d="M5 13l4 4L19 7" /></svg>
             </div>
-            <h2 className="text-5xl font-black text-slate-900 mb-4 tracking-tighter">¡Entrenamiento Superado!</h2>
-            <p className="text-slate-400 mb-12 font-semibold text-lg leading-snug">Has dado un gran paso hacia tu objetivo hoy. ¡A descansar!</p>
+            <h2 className="text-5xl font-black text-slate-900 mb-4 tracking-tighter">¡Buen Trabajo!</h2>
+            <p className="text-slate-400 mb-12 font-semibold text-lg leading-snug tracking-tight">Entrenamiento completado. La consistencia es la clave del éxito.</p>
             <button onClick={() => setView('config')} className="w-full py-6 bg-slate-900 text-white rounded-[2.5rem] font-black text-lg shadow-xl hover:bg-slate-800 transition-all">Nueva Sesión</button>
           </div>
         </div>
