@@ -5,6 +5,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>SmartFit AI | Tu Entrenador Inteligente</title>
+    <!-- Shim para evitar el error 'process is not defined' en el navegador -->
+    <script>
+      window.process = {
+        env: {
+          API_KEY: '', // Se asume que el entorno inyectará esto o se manejará vía servicios
+          SUPABASE_ANON_KEY: ''
+        }
+      };
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
@@ -19,22 +28,12 @@
       h1, h2, h3, h4 {
         font-family: var(--font-heading);
       }
-      ::-webkit-scrollbar {
-        width: 8px;
+      @keyframes progress {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
       }
-      ::-webkit-scrollbar-track {
-        background: transparent;
-      }
-      ::-webkit-scrollbar-thumb {
-        background: #e2e8f0;
-        border-radius: 10px;
-      }
-      @keyframes pulse-slow {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.5; }
-      }
-      .animate-pulse-slow {
-        animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      .animate-progress {
+        animation: progress 2s ease-in-out infinite;
       }
     </style>
     <script type="importmap">

@@ -1,9 +1,18 @@
 
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, Type } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Inicialización segura. Si process.env.API_KEY no existe, el shim en index.html evita el crash.
+const getAIClient = () => {
+  const apiKey = process.env.API_KEY;
+  if (!apiKey) {
+    console.warn("Gemini API Key no encontrada. La generación de rutinas podría fallar.");
+  }
+  return new GoogleGenAI({ apiKey: apiKey || 'MISSING_KEY' });
+};
 
 export async function generateRoutine(config) {
+  const ai = getAIClient();
+  
   const prompt = `
     Genera una rutina de fitness altamente personalizada en JSON.
     Objetivo: ${config.objective}
@@ -22,20 +31,20 @@ export async function generateRoutine(config) {
       config: {
         responseMimeType: "application/json",
         responseSchema: {
-          type: "OBJECT",
+          type: Type.OBJECT,
           properties: {
-            focus: { type: "STRING" },
+            focus: { type: Type.STRING },
             exercises: {
-              type: "ARRAY",
+              type: Type.ARRAY,
               items: {
-                type: "OBJECT",
+                type: Type.OBJECT,
                 properties: {
-                  name: { type: "STRING" },
-                  sets: { type: "INTEGER" },
-                  reps: { type: "STRING" },
-                  description: { type: "STRING" },
-                  technicalDetails: { type: "STRING" },
-                  category: { type: "STRING", description: "Uno de: Cardio, Fuerza, Flexibilidad" }
+                  name: { type: Type.STRING },
+                  sets: { type: Type.INTEGER },
+                  reps: { type: Type.STRING },
+                  description: { type: Type.STRING },
+                  technicalDetails: { type: Type.STRING },
+                  category: { type: Type.STRING, description: "Uno de: Cardio, Fuerza, Flexibilidad" }
                 }
               }
             }
@@ -52,7 +61,7 @@ export async function generateRoutine(config) {
       exercises: data.exercises.map((ex, idx) => ({
         ...ex,
         id: `ex-${idx}`,
-        category: ex.category || 'Fuerza', // Fallback
+        category: ex.category || 'Fuerza',
         restBetweenSets: config.restBetweenSets,
         restBetweenExercises: config.restBetweenExercises,
         imageUrl: `https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=400&h=400&auto=format&fit=crop&exercise=${encodeURIComponent(ex.name)}`
