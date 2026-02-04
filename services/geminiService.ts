@@ -1,23 +1,22 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
-import { WorkoutConfig, Routine, Exercise } from "../types";
+import { WorkoutConfig, Routine } from "../types.ts";
 
 export async function generateRoutine(config: WorkoutConfig): Promise<Routine> {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
   const prompt = `
-    Actúa como un entrenador personal de élite. Crea una rutina de entrenamiento personalizada.
+    Eres un entrenador personal de élite. Crea una rutina de entrenamiento personalizada.
     OBJETIVO: ${config.objective}
     DIFICULTAD: ${config.difficulty}
     TIEMPO: ${config.duration} minutos
     
-    REGLAS:
-    - Para 'Perder Peso', prioriza ejercicios multiarticulares con poco descanso.
-    - Para 'Ganar Músculo', enfócate en hipertrofia progresiva.
-    - Incluye entre 4 y 7 ejercicios que encajen en el tiempo total.
-    - Los descansos deben ser: ${config.restBetweenSets}s entre series y ${config.restBetweenExercises}s entre cambios de ejercicio.
+    INSTRUCCIONES:
+    - Diseña entre 4 y 7 ejercicios efectivos.
+    - Asegúrate de que las repeticiones y series coincidan con el objetivo (ej: hipertrofia vs resistencia).
+    - Los descansos deben ser: ${config.restBetweenSets}s entre series y ${config.restBetweenExercises}s entre ejercicios.
     
-    Devuelve un JSON con 'focus' y 'exercises'.
+    Devuelve un JSON estructurado con 'focus' (resumen de la sesión) y 'exercises'.
   `;
 
   try {

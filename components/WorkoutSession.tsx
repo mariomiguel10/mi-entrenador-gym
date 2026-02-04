@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
-import { Routine, Exercise } from '../types';
-import Timer from './Timer';
+import { Routine, Exercise } from '../types.ts';
+import Timer from './Timer.tsx';
 
 interface WorkoutSessionProps {
   routine: Routine;
@@ -49,7 +49,7 @@ const WorkoutSession: React.FC<WorkoutSessionProps> = ({ routine, onFinish }) =>
         <Timer 
           seconds={isExerciseChange ? routine.config.restBetweenExercises : routine.config.restBetweenSets}
           title={isExerciseChange ? "Próximo Ejercicio" : "Descanso entre Series"}
-          subtitle={isExerciseChange ? routine.exercises[currentIdx + 1]?.name : `Preparando Serie ${currentSet + 1}`}
+          subtitle={isExerciseChange ? routine.exercises[currentIdx + 1]?.name : `Recuperando para Serie ${currentSet + 1}`}
           onComplete={handleRestEnd}
         />
         <div className="mt-10 w-full bg-slate-100 h-2 rounded-full overflow-hidden border border-slate-200">
@@ -69,36 +69,31 @@ const WorkoutSession: React.FC<WorkoutSessionProps> = ({ routine, onFinish }) =>
       <div className="bg-white rounded-[3.5rem] shadow-2xl overflow-hidden border border-slate-100">
         <div className="relative h-72 sm:h-[450px]">
           <img src={currentEx.imageUrl} className="w-full h-full object-cover" alt={currentEx.name} />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/30 to-transparent flex flex-col justify-end p-8 sm:p-14">
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/20 to-transparent flex flex-col justify-end p-8 sm:p-14">
             <span className="inline-block self-start px-3 py-1 bg-indigo-600 text-white rounded-lg text-[10px] font-black uppercase mb-4 tracking-widest">{currentEx.category}</span>
-            <h2 className="text-4xl sm:text-6xl font-black text-white leading-tight">{currentEx.name}</h2>
+            <h2 className="text-4xl sm:text-6xl font-black text-white leading-tight drop-shadow-lg">{currentEx.name}</h2>
           </div>
         </div>
 
         <div className="p-8 sm:p-14">
           <div className="grid grid-cols-2 gap-6 mb-12 text-center">
             <div className="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100">
-              <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Serie Actual</span>
+              <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Serie</span>
               <div className="flex items-baseline justify-center gap-1">
                 <span className="text-5xl font-black text-indigo-600 tracking-tighter">{currentSet}</span>
                 <span className="text-xl font-bold text-slate-300">/ {currentEx.sets}</span>
               </div>
             </div>
             <div className="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100">
-              <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Repeticiones</span>
+              <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Objetivo</span>
               <span className="text-5xl font-black text-slate-800 tracking-tighter">{currentEx.reps}</span>
             </div>
           </div>
 
           <div className="mb-12">
-             <button 
-              onClick={() => setShowTechnical(!showTechnical)}
-              className="w-full py-4 px-6 bg-slate-50 rounded-2xl flex items-center justify-between group hover:bg-slate-100 transition-colors border border-slate-100"
-             >
+             <button onClick={() => setShowTechnical(!showTechnical)} className="w-full py-4 px-6 bg-slate-50 rounded-2xl flex items-center justify-between hover:bg-slate-100 transition-colors border border-slate-100">
                 <span className="text-xs font-black text-slate-500 uppercase tracking-widest">Guía de Técnica</span>
-                <svg className={`w-5 h-5 text-indigo-500 transform transition-transform ${showTechnical ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" />
-                </svg>
+                <svg className={`w-5 h-5 text-indigo-500 transform transition-transform ${showTechnical ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" /></svg>
              </button>
              {showTechnical && (
                <div className="mt-4 p-8 bg-indigo-50/40 rounded-3xl border border-indigo-100 animate-in fade-in slide-in-from-top-4">
@@ -108,12 +103,7 @@ const WorkoutSession: React.FC<WorkoutSessionProps> = ({ routine, onFinish }) =>
              )}
           </div>
 
-          <button
-            onClick={handleSetComplete}
-            className="w-full py-7 bg-indigo-600 text-white rounded-[2.5rem] font-black text-2xl shadow-2xl shadow-indigo-100 transition-all transform active:scale-[0.98] hover:bg-indigo-700"
-          >
-            Completar Serie
-          </button>
+          <button onClick={handleSetComplete} className="w-full py-7 bg-indigo-600 text-white rounded-[2.5rem] font-black text-2xl shadow-2xl shadow-indigo-100 transition-all transform active:scale-[0.98] hover:bg-indigo-700">Completar Serie</button>
         </div>
       </div>
     </div>
