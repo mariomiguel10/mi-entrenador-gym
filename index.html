@@ -59,7 +59,7 @@
   </head>
   <body>
     <div id="root"></div>
-    <!-- Usamos rutas relativas a la raíz para que Vite las procese correctamente con la base configurada -->
-    <script type="module" src="/index.tsx"></script>
+    <!-- CRÍTICO: Usar ruta RELATIVA ./ para que funcione en subcarpetas de GitHub Pages -->
+    <script type="module" src="./index.tsx"></script>
   </body>
 </html>
