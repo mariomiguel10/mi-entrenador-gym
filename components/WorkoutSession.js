@@ -5,40 +5,45 @@ import Timer from './Timer.js';
 
 const html = htm.bind(React.createElement);
 
-const WorkoutSession = ({ routine, onFinish, initialState }) => {
+const WorkoutSession = ({ routine, onFinish, onUpdate, initialState }) => {
   const [currentExerciseIdx, setCurrentExerciseIdx] = useState(initialState?.exerciseIdx || 0);
   const [currentSet, setCurrentSet] = useState(initialState?.set || 1);
   const [isResting, setIsResting] = useState(false);
   const [restType, setRestType] = useState('set');
   const [showDetails, setShowDetails] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   const currentExercise = routine.exercises[currentExerciseIdx];
   const nextExercise = routine.exercises[currentExerciseIdx + 1];
 
-  // Persistir estado de la sesión
+  // Sincronizar progreso
   useEffect(() => {
-    localStorage.setItem('smartfit_active_session', JSON.stringify({
-      routine,
-      exerciseIdx: currentExerciseIdx,
-      set: currentSet,
-      timestamp: Date.now()
-    }));
-  }, [currentExerciseIdx, currentSet, routine]);
+    if (onUpdate) {
+      onUpdate({
+        routine,
+        exerciseIdx: currentExerciseIdx,
+        set: currentSet
+      });
+    }
+  }, [currentExerciseIdx, currentSet, routine, onUpdate]);
 
   const handleSetComplete = () => {
-    if (currentSet < currentExercise.sets) {
-      setRestType('set');
-      setIsResting(true);
-    } else {
-      if (currentExerciseIdx < routine.exercises.length - 1) {
-        setRestType('exercise');
+    setIsAnimating(true);
+    setTimeout(() => {
+      setIsAnimating(false);
+      if (currentSet < currentExercise.sets) {
+        setRestType('set');
         setIsResting(true);
       } else {
-        localStorage.removeItem('smartfit_active_session');
-        onFinish();
+        if (currentExerciseIdx < routine.exercises.length - 1) {
+          setRestType('exercise');
+          setIsResting(true);
+        } else {
+          onFinish();
+        }
       }
-    }
-    setShowDetails(false);
+      setShowDetails(false);
+    }, 200);
   };
 
   const handleRestComplete = () => {
@@ -51,7 +56,7 @@ const WorkoutSession = ({ routine, onFinish, initialState }) => {
     }
   };
 
-  // Cálculo de progreso
+  // Cálculo de progreso general basado en series totales
   const totalSets = routine.exercises.reduce((acc, ex) => acc + ex.sets, 0);
   const completedSets = routine.exercises.slice(0, currentExerciseIdx).reduce((acc, ex) => acc + ex.sets, 0) + (currentSet - 1);
   const progressPercent = (completedSets / totalSets) * 100;
@@ -71,8 +76,8 @@ const WorkoutSession = ({ routine, onFinish, initialState }) => {
         />
         <div className="mt-8 w-full max-w-md">
            <div className="flex justify-between mb-2 px-1">
-             <span className="text-[10px] font-black text-slate-400 uppercase">Progreso Total</span>
-             <span className="text-[10px] font-black text-indigo-600 uppercase">${Math.round(progressPercent)}%</span>
+             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Progreso de la sesión</span>
+             <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">${Math.round(progressPercent)}%</span>
            </div>
            <div className="h-2 bg-slate-100 rounded-full overflow-hidden border border-slate-200/50">
              <div className="h-full bg-indigo-600 transition-all duration-500" style=${{ width: `${progressPercent}%` }}></div>
@@ -84,16 +89,19 @@ const WorkoutSession = ({ routine, onFinish, initialState }) => {
 
   return html`
     <div className="max-w-4xl mx-auto px-4 pb-20">
-      <div className="bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-slate-50">
+      <div className="bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-slate-50 relative">
+        <!-- Barra de progreso visual en la parte superior -->
+        <div className="absolute top-0 left-0 w-full h-1.5 bg-slate-100 z-20">
+          <div className="h-full bg-indigo-600 transition-all duration-500 ease-out" style=${{ width: `${progressPercent}%` }}></div>
+        </div>
+
         <div className="relative h-72 sm:h-96 bg-slate-900">
           <img src=${currentExercise.imageUrl} alt=${currentExercise.name} className="w-full h-full object-cover opacity-70" />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 flex flex-col justify-end p-8 sm:p-12">
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/20 to-transparent flex flex-col justify-end p-8 sm:p-12">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="px-3 py-1 bg-white/10 backdrop-blur-md rounded-lg text-[10px] font-black text-white uppercase tracking-wider">${currentExercise.category}</span>
+            </div>
             <h2 className="text-4xl sm:text-5xl font-black text-white leading-tight">${currentExercise.name}</h2>
-          </div>
-          <div className="absolute top-6 left-6 right-6">
-             <div className="h-1.5 bg-white/20 rounded-full overflow-hidden">
-               <div className="h-full bg-white transition-all duration-500" style=${{ width: `${progressPercent}%` }}></div>
-             </div>
           </div>
         </div>
 
@@ -101,7 +109,10 @@ const WorkoutSession = ({ routine, onFinish, initialState }) => {
           <div className="grid grid-cols-2 gap-6 mb-8 text-center">
             <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100">
               <span className="block text-[10px] font-black text-slate-400 uppercase mb-1">Serie</span>
-              <span className="text-4xl font-black text-indigo-600">${currentSet} / ${currentExercise.sets}</span>
+              <div className="flex items-baseline justify-center gap-1">
+                <span className="text-4xl font-black text-indigo-600">${currentSet}</span>
+                <span className="text-lg font-bold text-slate-300">/ ${currentExercise.sets}</span>
+              </div>
             </div>
             <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100">
               <span className="block text-[10px] font-black text-slate-400 uppercase mb-1">Reps</span>
@@ -112,27 +123,36 @@ const WorkoutSession = ({ routine, onFinish, initialState }) => {
           <div className="mb-8">
             <button 
               onClick=${() => setShowDetails(!showDetails)}
-              className="w-full py-4 px-6 bg-slate-50 rounded-2xl flex items-center justify-between group hover:bg-slate-100 transition-colors"
+              className="w-full py-4 px-6 bg-slate-50 rounded-2xl flex items-center justify-between group hover:bg-slate-100 transition-colors border border-slate-100"
             >
               <span className="text-sm font-bold text-slate-700 uppercase tracking-wider">Ver Técnica y Detalles</span>
-              <svg className=${`w-5 h-5 text-indigo-500 transition-transform ${showDetails ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className=${`w-5 h-5 text-indigo-500 transition-transform duration-300 ${showDetails ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M19 9l-7 7-7-7" />
               </svg>
             </button>
 
             ${showDetails && html`
-              <div className="mt-4 p-6 bg-indigo-50/30 rounded-3xl border border-indigo-100 animate-in fade-in slide-in-from-top-4">
-                <h5 className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-3">Descripción</h5>
-                <p className="text-slate-600 text-sm leading-relaxed mb-6 font-medium">${currentExercise.description}</p>
-                <h5 className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-3">Técnica Pro</h5>
-                <p className="text-slate-700 text-sm italic font-semibold leading-relaxed border-l-4 border-indigo-200 pl-4">${currentExercise.technicalDetails}</p>
+              <div className="mt-4 p-8 bg-indigo-50/30 rounded-3xl border border-indigo-100 animate-in fade-in slide-in-from-top-4">
+                <div className="space-y-6">
+                  <section>
+                    <h5 className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-2">Descripción</h5>
+                    <p className="text-slate-600 text-base leading-relaxed font-medium">${currentExercise.description}</p>
+                  </section>
+                  <section className="pt-4 border-t border-indigo-100/50">
+                    <h5 className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-2 flex items-center gap-2">💡 Técnica Pro</h5>
+                    <p className="text-slate-700 text-sm italic font-semibold leading-relaxed border-l-4 border-indigo-200 pl-4">${currentExercise.technicalDetails}</p>
+                  </section>
+                </div>
               </div>
             `}
           </div>
 
-          <button onClick=${handleSetComplete} className="w-full py-6 bg-indigo-600 text-white text-xl font-black rounded-[2rem] shadow-xl shadow-indigo-100 active:scale-95 transition-all flex items-center justify-center gap-3">
-            Completar Serie
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <button 
+            onClick=${handleSetComplete} 
+            className=${`w-full py-6 bg-indigo-600 text-white text-xl font-black rounded-[2rem] shadow-xl shadow-indigo-100 transition-all flex items-center justify-center gap-3 ${isAnimating ? 'scale-95 bg-indigo-700' : 'active:scale-95'}`}
+          >
+            ${currentSet === currentExercise.sets && currentExerciseIdx === routine.exercises.length - 1 ? 'Finalizar Entrenamiento' : 'Completar Serie'}
+            <svg xmlns="http://www.w3.org/2000/svg" className=${`h-6 w-6 ${isAnimating ? 'animate-bounce' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
             </svg>
           </button>

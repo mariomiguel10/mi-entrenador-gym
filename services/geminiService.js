@@ -5,12 +5,14 @@ const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export async function generateRoutine(config) {
   const prompt = `
-    Genera una rutina de fitness personalizada en JSON.
+    Genera una rutina de fitness altamente personalizada en JSON.
     Objetivo: ${config.objective}
     Nivel: ${config.difficulty}
     Duración: ${config.duration} min
-    Descanso series: ${config.restBetweenSets}s
-    Descanso ejercicios: ${config.restBetweenExercises}s
+    Descanso series sugerido: ${config.restBetweenSets}s
+    Descanso ejercicios sugerido: ${config.restBetweenExercises}s
+
+    Para cada ejercicio, asígnale una categoría obligatoria entre: 'Cardio', 'Fuerza', 'Flexibilidad'.
   `;
 
   try {
@@ -32,7 +34,8 @@ export async function generateRoutine(config) {
                   sets: { type: "INTEGER" },
                   reps: { type: "STRING" },
                   description: { type: "STRING" },
-                  technicalDetails: { type: "STRING" }
+                  technicalDetails: { type: "STRING" },
+                  category: { type: "STRING", description: "Uno de: Cardio, Fuerza, Flexibilidad" }
                 }
               }
             }
@@ -49,6 +52,7 @@ export async function generateRoutine(config) {
       exercises: data.exercises.map((ex, idx) => ({
         ...ex,
         id: `ex-${idx}`,
+        category: ex.category || 'Fuerza', // Fallback
         restBetweenSets: config.restBetweenSets,
         restBetweenExercises: config.restBetweenExercises,
         imageUrl: `https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=400&h=400&auto=format&fit=crop&exercise=${encodeURIComponent(ex.name)}`

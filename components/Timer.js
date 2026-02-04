@@ -7,6 +7,7 @@ const html = htm.bind(React.createElement);
 const Timer = ({ seconds, onComplete, title, subtitle }) => {
   const [timeLeft, setTimeLeft] = useState(seconds);
   const [isPaused, setIsPaused] = useState(false);
+  const [volume, setVolume] = useState(0.5); // 0 to 1
 
   const playBeep = () => {
     try {
@@ -20,7 +21,7 @@ const Timer = ({ seconds, onComplete, title, subtitle }) => {
       oscillator.type = 'sine';
       oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // A5 note
       gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-      gainNode.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 0.01);
+      gainNode.gain.linearRampToValueAtTime(volume * 0.2, audioCtx.currentTime + 0.01);
       gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
 
       oscillator.start(audioCtx.currentTime);
@@ -68,11 +69,24 @@ const Timer = ({ seconds, onComplete, title, subtitle }) => {
         <span className="text-6xl font-black text-slate-800 font-mono">${formatTime(timeLeft)}</span>
       </div>
 
+      <div className="w-full mb-8 space-y-2">
+        <div className="flex justify-between items-center px-1">
+          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Volumen Alerta</span>
+          <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">${Math.round(volume * 100)}%</span>
+        </div>
+        <input 
+          type="range" min="0" max="1" step="0.1" 
+          value=${volume} 
+          onChange=${(e) => setVolume(parseFloat(e.target.value))}
+          className="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+        />
+      </div>
+
       <div className="flex gap-4 w-full">
-        <button onClick=${() => setIsPaused(!isPaused)} className="flex-1 py-4 rounded-2xl font-bold bg-slate-50 text-slate-600">
+        <button onClick=${() => setIsPaused(!isPaused)} className="flex-1 py-4 rounded-2xl font-bold bg-slate-50 text-slate-600 border border-slate-100 hover:bg-slate-100 transition-colors">
           ${isPaused ? 'Reanudar' : 'Pausar'}
         </button>
-        <button onClick=${onComplete} className="flex-[2] py-4 bg-indigo-600 text-white rounded-2xl font-bold shadow-lg">
+        <button onClick=${onComplete} className="flex-[2] py-4 bg-indigo-600 text-white rounded-2xl font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all">
           Saltar
         </button>
       </div>

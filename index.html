@@ -29,6 +29,13 @@
         background: #e2e8f0;
         border-radius: 10px;
       }
+      @keyframes pulse-slow {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+      }
+      .animate-pulse-slow {
+        animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      }
     </style>
     <script type="importmap">
 {
@@ -37,6 +44,7 @@
     "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
     "htm": "https://esm.sh/htm@3.1.1",
     "@google/genai": "https://esm.sh/@google/genai@1.39.0",
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.39.7",
     "react-dom/": "https://esm.sh/react-dom@^19.2.4/"
   }
 }
