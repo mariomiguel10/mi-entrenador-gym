@@ -6,16 +6,19 @@ export async function generateRoutine(config: WorkoutConfig): Promise<Routine> {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
   const prompt = `
-    Eres un entrenador personal de élite. Diseña una rutina de entrenamiento de alta eficiencia.
-    OBJETIVO: ${config.objective}
-    DIFICULTAD: ${config.difficulty}
-    TIEMPO: ${config.duration} minutos
-    DESCANSOS: ${config.restBetweenSets}s entre series, ${config.restBetweenExercises}s entre ejercicios.
+    Eres un entrenador personal de élite de SmartFit AI. Diseña una rutina de entrenamiento avanzada.
+    OBJETIVO ESPECÍFICO: ${config.objective}
+    NIVEL DE DIFICULTAD: ${config.difficulty}
+    TIEMPO ESTIMADO: ${config.duration} minutos
+    DESCANSO ENTRE SERIES: ${config.restBetweenSets} segundos
+    DESCANSO ENTRE EJERCICIOS: ${config.restBetweenExercises} segundos
     
-    REGLAS:
-    - Selecciona entre 4 y 7 ejercicios clave.
-    - Asegúrate de que el volumen de trabajo (series/reps) sea coherente con el objetivo y la dificultad.
-    - Devuelve un JSON con 'focus' (un resumen motivador) y 'exercises'.
+    INSTRUCCIONES:
+    - Diseña entre 4 y 7 ejercicios que maximicen el tiempo disponible.
+    - Las repeticiones deben ser acordes al objetivo (ej: 8-12 para hipertrofia, 15-20 para resistencia).
+    - Los detalles técnicos deben centrarse en la seguridad biomecánica.
+    
+    Devuelve un JSON estrictamente estructurado con 'focus' y 'exercises'.
   `;
 
   try {
@@ -58,11 +61,11 @@ export async function generateRoutine(config: WorkoutConfig): Promise<Routine> {
         ...ex,
         id: `ex-${idx}`,
         category: ex.category || 'Fuerza',
-        imageUrl: `https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=800&h=600&auto=format&fit=crop&exercise=${encodeURIComponent(ex.name)}`
+        imageUrl: `https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800&h=600&auto=format&fit=crop&exercise=${encodeURIComponent(ex.name)}`
       }))
     };
   } catch (error) {
-    console.error("Gemini Error:", error);
+    console.error("Gemini Engine Error:", error);
     throw error;
   }
 }
