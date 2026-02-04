@@ -1,23 +1,23 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
-import { WorkoutConfig, Routine } from "../types";
+import { WorkoutConfig, Routine, Exercise } from "../types";
 
 export async function generateRoutine(config: WorkoutConfig): Promise<Routine> {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
   const prompt = `
-    Eres un entrenador personal de élite. Genera una rutina de entrenamiento optimizada.
+    Actúa como un entrenador personal de élite. Crea una rutina de entrenamiento personalizada.
     OBJETIVO: ${config.objective}
-    NIVEL: ${config.difficulty}
+    DIFICULTAD: ${config.difficulty}
     TIEMPO: ${config.duration} minutos
     
-    INSTRUCCIONES:
-    - Si el objetivo es 'Perder Peso', usa circuitos metabólicos de alta intensidad.
-    - Si es 'Ganar Músculo', usa rangos de hipertrofia funcional.
-    - El número de ejercicios debe ser ideal para ${config.duration} min (entre 4-8).
-    - Los descansos ya están definidos por el usuario: ${config.restBetweenSets}s entre series y ${config.restBetweenExercises}s entre ejercicios.
+    REGLAS:
+    - Para 'Perder Peso', prioriza ejercicios multiarticulares con poco descanso.
+    - Para 'Ganar Músculo', enfócate en hipertrofia progresiva.
+    - Incluye entre 4 y 7 ejercicios que encajen en el tiempo total.
+    - Los descansos deben ser: ${config.restBetweenSets}s entre series y ${config.restBetweenExercises}s entre cambios de ejercicio.
     
-    Devuelve un JSON con 'focus' (un resumen de la sesión) y 'exercises'.
+    Devuelve un JSON con 'focus' y 'exercises'.
   `;
 
   try {
@@ -55,15 +55,16 @@ export async function generateRoutine(config: WorkoutConfig): Promise<Routine> {
     
     return {
       focus: data.focus,
-      config: config,
       exercises: data.exercises.map((ex: any, idx: number) => ({
         ...ex,
         id: `ex-${idx}`,
-        imageUrl: `https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=600&h=600&auto=format&fit=crop&exercise=${encodeURIComponent(ex.name)}`
-      }))
+        category: ex.category || 'Fuerza',
+        imageUrl: `https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=800&h=600&auto=format&fit=crop&exercise=${encodeURIComponent(ex.name)}`
+      })),
+      config: config
     };
   } catch (error) {
-    console.error("Gemini Error:", error);
+    console.error("Gemini AI Error:", error);
     throw error;
   }
 }

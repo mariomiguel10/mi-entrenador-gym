@@ -15,8 +15,11 @@ const WorkoutSession: React.FC<WorkoutSessionProps> = ({ routine, onFinish }) =>
   const [showTechnical, setShowTechnical] = useState(false);
 
   const currentEx = routine.exercises[currentIdx];
-  
-  const handleNext = () => {
+  const totalSetsInRoutine = routine.exercises.reduce((acc, ex) => acc + ex.sets, 0);
+  const completedSets = routine.exercises.slice(0, currentIdx).reduce((acc, ex) => acc + ex.sets, 0) + (currentSet - 1);
+  const progressPercent = (completedSets / totalSetsInRoutine) * 100;
+
+  const handleSetComplete = () => {
     if (currentSet < currentEx.sets) {
       setIsResting(true);
     } else {
@@ -39,68 +42,75 @@ const WorkoutSession: React.FC<WorkoutSessionProps> = ({ routine, onFinish }) =>
     setShowTechnical(false);
   };
 
-  const progress = ((currentIdx * 100) / routine.exercises.length) + ((currentSet * 100) / (routine.exercises.length * currentEx.sets));
-
   if (isResting) {
-    const isNextEx = currentSet === currentEx.sets;
+    const isExerciseChange = currentSet === currentEx.sets;
     return (
-      <div className="max-w-md mx-auto py-12 px-4">
+      <div className="max-w-md mx-auto py-12 px-4 animate-in fade-in duration-500">
         <Timer 
-          seconds={isNextEx ? routine.config.restBetweenExercises : routine.config.restBetweenSets}
-          title={isNextEx ? "Siguiente Ejercicio" : "Descanso entre Series"}
-          subtitle={isNextEx ? routine.exercises[currentIdx + 1]?.name : `Serie ${currentSet + 1} de ${currentEx.name}`}
+          seconds={isExerciseChange ? routine.config.restBetweenExercises : routine.config.restBetweenSets}
+          title={isExerciseChange ? "Próximo Ejercicio" : "Descanso entre Series"}
+          subtitle={isExerciseChange ? routine.exercises[currentIdx + 1]?.name : `Preparando Serie ${currentSet + 1}`}
           onComplete={handleRestEnd}
         />
+        <div className="mt-10 w-full bg-slate-100 h-2 rounded-full overflow-hidden border border-slate-200">
+           <div className="h-full bg-indigo-600 transition-all duration-700" style={{ width: `${progressPercent}%` }}></div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
-      {/* Barra de progreso global */}
-      <div className="fixed top-0 left-0 w-full h-2 bg-slate-100 z-50">
-        <div className="h-full bg-indigo-600 transition-all duration-500" style={{ width: `${progress}%` }}></div>
+    <div className="max-w-4xl mx-auto px-4 py-8 animate-in slide-in-from-right-10">
+      {/* Barra de progreso superior fija */}
+      <div className="fixed top-0 left-0 w-full h-1.5 bg-slate-200 z-[100]">
+        <div className="h-full bg-indigo-600 transition-all duration-500 ease-out" style={{ width: `${progressPercent}%` }}></div>
       </div>
 
-      <div className="bg-white rounded-[3rem] shadow-2xl overflow-hidden border border-slate-50">
-        <div className="relative h-64 sm:h-80">
+      <div className="bg-white rounded-[3.5rem] shadow-2xl overflow-hidden border border-slate-100">
+        <div className="relative h-72 sm:h-[450px]">
           <img src={currentEx.imageUrl} className="w-full h-full object-cover" alt={currentEx.name} />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent flex flex-col justify-end p-10">
-            <h2 className="text-4xl font-black text-white">{currentEx.name}</h2>
-            <p className="text-indigo-400 font-black uppercase text-[10px] tracking-widest mt-2">{currentEx.category}</p>
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/30 to-transparent flex flex-col justify-end p-8 sm:p-14">
+            <span className="inline-block self-start px-3 py-1 bg-indigo-600 text-white rounded-lg text-[10px] font-black uppercase mb-4 tracking-widest">{currentEx.category}</span>
+            <h2 className="text-4xl sm:text-6xl font-black text-white leading-tight">{currentEx.name}</h2>
           </div>
         </div>
 
-        <div className="p-10">
-          <div className="grid grid-cols-2 gap-4 mb-10">
-            <div className="bg-slate-50 p-6 rounded-3xl text-center border border-slate-100">
-              <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Serie</span>
-              <span className="text-3xl font-black text-indigo-600">{currentSet} <span className="text-slate-300 text-lg">/ {currentEx.sets}</span></span>
+        <div className="p-8 sm:p-14">
+          <div className="grid grid-cols-2 gap-6 mb-12 text-center">
+            <div className="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100">
+              <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Serie Actual</span>
+              <div className="flex items-baseline justify-center gap-1">
+                <span className="text-5xl font-black text-indigo-600 tracking-tighter">{currentSet}</span>
+                <span className="text-xl font-bold text-slate-300">/ {currentEx.sets}</span>
+              </div>
             </div>
-            <div className="bg-slate-50 p-6 rounded-3xl text-center border border-slate-100">
-              <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Objetivo</span>
-              <span className="text-3xl font-black text-slate-800">{currentEx.reps}</span>
+            <div className="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100">
+              <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Repeticiones</span>
+              <span className="text-5xl font-black text-slate-800 tracking-tighter">{currentEx.reps}</span>
             </div>
           </div>
 
-          <div className="mb-10">
-            <button 
+          <div className="mb-12">
+             <button 
               onClick={() => setShowTechnical(!showTechnical)}
-              className="text-xs font-black text-indigo-600 uppercase tracking-widest flex items-center gap-2 mb-4"
-            >
-              {showTechnical ? 'Ocultar técnica' : 'Ver técnica correcta'}
-              <svg className={`w-3 h-3 transform transition-transform ${showTechnical ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M19 9l-7 7-7-7" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/></svg>
-            </button>
-            {showTechnical && (
-              <div className="p-6 bg-indigo-50 rounded-2xl border border-indigo-100 animate-in fade-in slide-in-from-top-2">
-                <p className="text-slate-700 text-sm font-medium leading-relaxed italic">{currentEx.technicalDetails}</p>
-              </div>
-            )}
+              className="w-full py-4 px-6 bg-slate-50 rounded-2xl flex items-center justify-between group hover:bg-slate-100 transition-colors border border-slate-100"
+             >
+                <span className="text-xs font-black text-slate-500 uppercase tracking-widest">Guía de Técnica</span>
+                <svg className={`w-5 h-5 text-indigo-500 transform transition-transform ${showTechnical ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" />
+                </svg>
+             </button>
+             {showTechnical && (
+               <div className="mt-4 p-8 bg-indigo-50/40 rounded-3xl border border-indigo-100 animate-in fade-in slide-in-from-top-4">
+                  <p className="text-slate-700 text-lg font-medium leading-relaxed italic mb-4">{currentEx.description}</p>
+                  <div className="text-sm font-bold text-indigo-600 border-l-4 border-indigo-200 pl-4">{currentEx.technicalDetails}</div>
+               </div>
+             )}
           </div>
 
           <button
-            onClick={handleNext}
-            className="w-full py-6 bg-indigo-600 text-white rounded-[2rem] font-black text-xl shadow-xl shadow-indigo-100 transform active:scale-95"
+            onClick={handleSetComplete}
+            className="w-full py-7 bg-indigo-600 text-white rounded-[2.5rem] font-black text-2xl shadow-2xl shadow-indigo-100 transition-all transform active:scale-[0.98] hover:bg-indigo-700"
           >
             Completar Serie
           </button>
