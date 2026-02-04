@@ -1,0 +1,5 @@
+{
+  "name": "SmartFit - Generador de Rutinas Inteligentes",
+  "description": "Una aplicación avanzada de fitness que utiliza IA para generar rutinas personalizadas basadas en tus objetivos, tiempo disponible y nivel de dificultad, con temporizadores integrados para descansos.",
+  "requestFramePermissions": []
+}
