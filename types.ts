@@ -7,8 +7,8 @@ export interface WorkoutConfig {
   difficulty: Difficulty;
   objective: Objective;
   duration: Duration;
-  restBetweenSets: number; // in seconds
-  restBetweenExercises: number; // in seconds
+  restBetweenSets: number;
+  restBetweenExercises: number;
 }
 
 export interface Exercise {
@@ -19,13 +19,13 @@ export interface Exercise {
   description: string;
   technicalDetails: string;
   imageUrl: string;
-  restBetweenSets: number;
-  restBetweenExercises: number;
+  category: string;
 }
 
 export interface Routine {
   focus: string;
   exercises: Exercise[];
+  config: WorkoutConfig;
 }
 
 export type ViewState = 'config' | 'loading' | 'overview' | 'active' | 'finished';
